@@ -1,3 +1,14 @@
+```table-of-contents
+title:
+style: nestedList # TOC style (nestedList|nestedOrderedList|inlineFirstLevel)
+minLevel: 0 # Include headings from the specified level
+maxLevel: 0 # Include headings up to the specified level
+include: 
+exclude: 
+includeLinks: true # Make headings clickable
+hideWhenEmpty: false # Hide TOC if no headings are found
+debugInConsole: false # Print debug info in Obsidian console
+```
 # A few points about GoLang [^1]
 
 1. Statically typed language (types can't be changed (not without type conversion))
@@ -342,6 +353,132 @@ func main() {
 ```
 
 # Structs & Interfaces
+
+## Structs 
+
+Structs = your own type
+
+```go
+package main
+
+import "fmt"
+
+type gasEngine struct {
+	mpg uint8
+	gallons uint8
+	ownerInfo owner
+	// we can also just write "owner" instead of "ownerInfo owner"
+	// this will add the subfields directly. So, we'll be able to access
+	// name via, gasEngine.name, instead of gasEngine.ownerInfo.name
+	
+	// we can also just write "int" here, and that will create a subfield named,
+	// "int", with the type int. 
+	
+	// however, if a collision is about to occur, like if name was already a
+	// field, we wouldn't be able to do this.
+}
+
+type owner struct {
+	name string
+}
+
+/*
+We can also create methods, that are functions directly tied to structs, and can access its values. (e gasEngine) is the part that makes it different from a regular function. Basically the functions within a class
+*/
+func (e gasEngine) milesLeft() uint8 {
+	return e.gallons*e.mpg
+}
+
+func canMakeIt(e gasEngine, miles uint8) {
+	if miles <= e.milesLeft() {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
+}
+
+func main() {
+	var myEngine gasEngine = gasEngine{mpg:25, gallons:15, ownerInfo:owner{"A"}}
+	var myEngine gasEngine2 = gasEngine{25, 15, owner{"A"}}
+	gasEngine2.mpg = 20
+	fmt.Println(myEngine.mpg, myEngine.gallons, myEngine.ownerInfo.name)
+	
+	fmt.Printf("Miles left: %v", myEngine.milesLeft())
+	
+	var anonymousEngine = struct {
+		mpg uint8
+		gallons uint8
+	}{25,25}
+}
+```
+
+## Interfaces
+
+Now, we'll also add an electric engine, and use an interface
+
+```go
+package main
+
+import "fmt"
+
+type gasEngine struct {
+	mpg uint8
+	gallons uint8
+	ownerInfo owner
+	// we can also just write "owner" instead of "ownerInfo owner"
+	// this will add the subfields directly. So, we'll be able to access
+	// name via, gasEngine.name, instead of gasEngine.ownerInfo.name
+	
+	// we can also just write "int" here, and that will create a subfield named,
+	// "int", with the type int. 
+	
+	// however, if a collision is about to occur, like if name was already a
+	// field, we wouldn't be able to do this.
+}
+
+type owner struct {
+	name string
+}
+
+type electricEngine struct {
+	mpkwh uint8
+	kwh uint8
+}
+
+/*
+We can also create methods, that are functions directly tied to structs, and can access its values. (e gasEngine) is the part that makes it different from a regular function. Basically the functions within a class
+*/
+func (e gasEngine) milesLeft() uint8 {
+	return e.gallons*e.mpg
+}
+func (e electricEngine) milesLeft() uint8 {
+	return e.kwh*e.mpkwh
+}
+
+type engine interface {
+	milesLeft() uint8
+}
+
+/*
+Now, this function can take any engine, as long as it has the milesLeft() method in it. Since both gasEngine, and electricEngine have it, it will accept both
+*/
+func canMakeIt(e engine, miles uint8) {
+	if miles <= e.milesLeft() {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
+}
+
+func main() {
+	var myEngine gasEngine = gasEngine{mpg:25, gallons:15, ownerInfo:owner{"A"}}
+	canMakeIt(myEngine, 50)
+	var myEngine2 electricEngine = electricEngine{25,15,owner{"A"}}
+	canMakeIt(myEngine2, 50)
+}
+```
+
+# Pointer
 
 
 
