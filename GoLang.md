@@ -294,4 +294,55 @@ for i:=0; i<10; i++ {
 	fmt.Println(i)
 }
 ```
+
+## Strings
+
+If we aren't using plain ascii characters, using a regular string will end up being complicated, as the length will also change. Hence, it's better to use an array of runes, instead of strings in that case. However, runes are just aliases for int32. So, it does end up consuming more memory. 
+
+> [!info]
+> Strings are immutable in GoLang
+
+### Runes
+
+> [!info] Printing %T 
+> This will print the type of the value
+
+```go
+func main() {
+	// var myString = "resume"
+	var myString = []rune("résumé")
+	var indexed = myString[1]
+	fmt.Printf("%v, %T\n", indexed, indexed) // 233, int32
+	
+	for i, v := range myString {
+		fmt.Println(i, v)
+	}
+	
+	var myRune = 'a'
+	
+	var strSlice = []string{"he", "ll", "o"}
+	var catStr = ""
+	for i := range strSlice { 
+		// range gives two elements : index, and value
+		// here we are just using one, so that's the index
+		catStr += strSlice[i] 
+	}
+	fmt.Println(catStr)
+	// however, this is inefficient, as we're 
+	// literally making a new string in every iteration. We should
+	// instead import strings. 
+	
+	var strBuilder strings.Builder
+	for i := range strSlice {
+		strBuilder.WriteString(strSlice[i])
+	}
+	var catStr2 = strBuilder.string()
+	fmt.Println(catStr2)
+}
+```
+
+# Structs & Interfaces
+
+
+
 [^1]:[Learn Go](https://www.youtube.com/watch?v=8uiZC0l4Ajw) 
