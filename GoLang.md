@@ -9,6 +9,8 @@ includeLinks: true # Make headings clickable
 hideWhenEmpty: false # Hide TOC if no headings are found
 debugInConsole: false # Print debug info in Obsidian console
 ```
+
+---
 # A few points about GoLang [^1]
 
 1. Statically typed language (types can't be changed (not without type conversion))
@@ -110,7 +112,7 @@ fmt.Println(var1,var2) // 1 2
 
 Instead of var, we can use const as well btw. Const = can't be changed. We have to initialize the value explicitly.
 
-
+---
 # Functions & Control Structures
 
 ```go
@@ -159,6 +161,7 @@ func intDivisionBoth(num int, den int) (int, int, error) {
 }
 ```
 
+---
 # Arrays, Slices, Maps, and Loops
 
 ## Arrays
@@ -352,6 +355,7 @@ func main() {
 }
 ```
 
+---
 # Structs & Interfaces
 
 ## Structs 
@@ -478,8 +482,56 @@ func main() {
 }
 ```
 
+---
 # Pointer
 
+```go
+package main
 
+import "fmt"
 
+func main() {
+ var p *int32 = new(int32)
+ var i int32
+}
+```
+
+A lot of the pointer stuff is just like in C. `new()` is just like malloc.
+
+> [!info] Remember about Slices
+> Slices are basically just the pointers to the array. So, if u try to make a copy of a slice by, `var sliceCopy = slice`, both sliceCopy and slice will point to the same memory location 
+
+> [!info] %p prints the pointer address
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	var thing1 = [5]float64{1,2,3,4,5}
+	fmt.Printf("%p", &thing1)
+	
+	var result = square(&thing1)
+	fmt.Printf("The result is %v\n", result)
+}
+
+func square(thing2 *[5]float64) [5]float64 {
+	fmt.Printf("%p", &thing2)
+	for i := range thing2 {
+		thing2[i] = thing2[i]*thing2[i]
+	}
+	return thing2
+}
+```
+
+---
+# Go Routines
+
+> [!info] Imp thing about Concurrency
+> Concurrency != Parallelism
+
+to be continued
+
+---
 [^1]:[Learn Go](https://www.youtube.com/watch?v=8uiZC0l4Ajw) 
