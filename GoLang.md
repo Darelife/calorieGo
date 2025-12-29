@@ -531,7 +531,163 @@ func square(thing2 *[5]float64) [5]float64 {
 > [!info] Imp thing about Concurrency
 > Concurrency != Parallelism
 
-to be continued
+Here we use wait groups, (from the sync package). These work just like semaphores, but instead of decrementing the counter, it increases the count when some resource gets added to it. We also have to use the `go` call to make it run concurrently. There's also the Wait() function, that will wait till the values don't become 0. We can't avoid using the wait groups, as without them, the cpu just adds the concurrency, but doesn't actually wait for the tasks to finish.
+
+Without Wait Groups
+```go
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
+
+var dbData = []string{"id1","id2","id3","id4","id5"}
+
+func main() {
+	t0 := time.Now()
+	for i:=0; i<len(dbData); i++ {
+		go dbCall(i)
+	}
+	fmt.Println(time.Since(t0))
+}
+
+func dbCall(i int) {
+	var delay float32 = rand.Float32()*2000
+	time.Sleep(time.Duration(delay)*time.Millisecond)
+	fmt.Println(dbData[i])
+}
+```
+
+If we run this code, nothing will happen. Our program spawned these tasks in the background, didn't wait for them to finish, and then exited the program. Hence, we need to use wait groups
+
+```go
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"time"
+	"sync"
+)
+
+var wg = sync.WaitGroup{}
+var dbData = []string{"id1","id2","id3","id4","id5"}
+
+func main() {
+	t0 := time.Now()
+	for i:=0; i<len(dbData); i++ {
+		wg.Add(1) // increments 1 to the counter
+		go dbCall(i)
+	}
+	wg.Wait() // waits for the counter to go back to 0
+	fmt.Println(time.Since(t0))
+}
+
+func dbCall(i int) {
+	var delay float32 = rand.Float32()*2000
+	time.Sleep(time.Duration(delay)*time.Millisecond)
+	fmt.Println(dbData[i])
+	wg.Done() // decrements 1 from the counter
+}
+```
+
+Ight, now that we've implemented wait groups, lets move to another important OS concept, "Mutexes"
+
+
+```go
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"time"
+	"sync"
+)
+
+var m = sync.Mutex{}
+var wg = sync.WaitGroup{}
+var dbData = []string{"id1","id2","id3","id4","id5"}
+var results = []string{}
+
+func main() {
+	t0 := time.Now()
+	for i:=0; i<len(dbData); i++ {
+		wg.Add(1) // increments 1 to the counter
+		go dbCall(i)
+	}
+	wg.Wait() // waits for the counter to go back to 0
+	fmt.Println(time.Since(t0))
+}
+
+func dbCall(i int) {
+	var delay float32 = rand.Float32()*2000
+	time.Sleep(time.Duration(delay)*time.Millisecond)
+	fmt.Println(dbData[i])
+	m.Lock()
+	results = append(results, db) // If used without locks, this can cause a race condition (OS concept)
+	m.Unlock()
+	wg.Done() // decrements 1 from the counter
+}
+```
+
+We also have read write mutexes in golang. `sync.RWMutex{}`
+In this, we have the Lock and Unlock methods too. But along with them, we also have Read Lock, (`RLock()`), and Read Unlock (`RUnlock()`)
+
+Read locks just exist to check if there's a full lock (someone is writing to it) or not. We can have multiple reads at once, but, we can't read while writing. When `Lock()` is done, all read locks, and regular locks must be cleared, before it can run. However, when `RLock()` is done, only the regular locks need to be cleared.
+
+```go
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"time"
+	"sync"
+)
+
+var m = sync.Mutex{}
+var wg = sync.WaitGroup{}
+var dbData = []string{"id1","id2","id3","id4","id5"}
+var results = []string{}
+
+func main() {
+	t0 := time.Now()
+	for i:=0; i<len(dbData); i++ {
+		wg.Add(1) // increments 1 to the counter
+		go dbCall(i)
+	}
+	wg.Wait() // waits for the counter to go back to 0
+	fmt.Println(time.Since(t0))
+}
+
+func dbCall(i int) {
+	var delay float32 = rand.Float32()*2000
+	time.Sleep(time.Duration(delay)*time.Millisecond)
+	fmt.Println(dbData[i])
+	save(dbData[i])
+	log()
+	wg.Done() // decrements 1 from the counter
+}
+
+func save(result string) {
+	m.Lock()
+	results = append(results, result)
+	m.Unlock()
+}
+
+func log() {
+	m.RLock()
+	fmt.Println(results)
+	m.RUnlock()
+}
+```
+
+---
+# Channels
+
+
 
 ---
 [^1]:[Learn Go](https://www.youtube.com/watch?v=8uiZC0l4Ajw) 
