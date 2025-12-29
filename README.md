@@ -3,7 +3,7 @@ Learning how to use golang as a backend server + production level backend basics
 
 ## todo
 I'm using ChatGPT btw, trying to understand how everything works. I myself don't know (or have forgotten) about a lot of the imp things. So, i'll go and revise them
-- [ ] Revise [GoLang](GoLang.md)
+- [x] Revise [GoLang](GoLang.md)
 - [ ] Revise Redis
 - [ ] Revise Docker
 - [ ] Learn how to use Nginx (Reverse Proxies)
