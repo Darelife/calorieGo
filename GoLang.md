@@ -687,7 +687,108 @@ func log() {
 ---
 # Channels
 
+1. Channels hold data
+2. They are thread safe. They avoid data races
+3. They listen for data, and we can block code execution when data is added or removed from a channel
 
+```go
+package main
+
+import "fmt"
+
+func main() {
+	var c = make(chan int) // this channel can only hold a single int value
+	c <- 1 // write 1
+	var i = <- c // read from the channel
+	fmt.Println(i)
+}
+```
+
+This will cause a **DEADLOCK** !!!
+
+As the channel waits for someone to read when it writes something in. 
+
+```go
+package main
+import "fmt"
+
+func main() {
+	var c = make(chan int)
+	go process(c)
+	fmt.Println(<-c)
+}
+
+func process(c chan int) {
+	c <- 123
+}
+```
+
+**For Loops** works perfectly with channels too
+
+```go
+package main
+import "fmt"
+
+func main() {
+	var c = make(chan int)
+	go process(c)
+	for i := range c { // it will wait for something to enter the channel.
+	// also, it won't close, unless we use the close(c) command in the other func
+		fmt.Println(<-c)
+	}
+}
+
+func process(c chan int) {
+	// defer runs the statement just before the function ends 
+	defer close(c) // close causes the channel to end, preventing a deadlock
+	for i:=0; i<5; i++ {
+		c <- i
+	}
+}
+```
+
+**Buffered Channels**
+
+```go
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
+
+var MAX_BURGER_PRICE float32 = 5
+
+func main() {
+	var burgerChannel = make(chan string)
+	var websites = []string{"burgerking.com", "mcdonalds.com"}
+	for i:=range websites {
+		go checkBurgerPrices(website[i], burgerChannel)
+	}
+	sendMessage(burgerChannel)
+}
+
+func checkBurgerPrices(website string, burgerChannel chan string) {
+	for {
+		time.Sleep(time.Second*1)
+		var burgerPrice = rand.Float32()*20
+		if burgerPrice<=MAX_BURGER_PRICE {
+			burgerChannel <- website
+			break
+		}
+	}
+}
+
+func sendMessage(burgerChannel chan string) {
+	fmt.Println(<-burgerChannel)
+}
+```
+
+
+ight, im really confused. I'll have to understand channels properly later.
+
+Topic left: generics
 
 ---
 [^1]:[Learn Go](https://www.youtube.com/watch?v=8uiZC0l4Ajw) 
