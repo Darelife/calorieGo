@@ -12,6 +12,7 @@ I'm using ChatGPT btw, trying to understand how everything works. I myself don't
 - [ ] Rate limiting (token bucket, leaky bucket)
 - [ ] Caching strategies
 - [ ] External API failures
+- [ ] GRPC
 
 
 ## running
